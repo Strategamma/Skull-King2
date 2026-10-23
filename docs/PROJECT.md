@@ -1,6 +1,6 @@
 # Skull King
 
-Decadence Arcade phone-first pirate card game. `game/` is the self-contained production package for https://github.com/Strategamma/Skull-King. `public/` is the earlier design prototype; do not deploy it. Root `npm run dev` starts the live package; `npm run preview` explicitly starts the old prototype.
+Decadence Arcade phone-first pirate card game. `game/` is the self-contained production package for https://github.com/Strategamma/Skull-King2. `public/` is the earlier design prototype; do not deploy it. Root `npm run dev` starts the live package; `npm run preview` explicitly starts the old prototype.
 
 Architecture: dependency-light DOM/CSS client, original dimensional raster artwork, Node + ws authoritative WebSocket service. Same-origin `/socket` by default; `game/config.js` can point separate static hosting to a Render `wss://…/socket` endpoint. Install manifest and service worker cache the shell; multiplayer needs the server. Render blueprint includes a persistent disk with DATA_DIR=/var/data. Atomic JSON room snapshots survive restarts on persistent storage. Never expose the data directory or tokens.
 
