@@ -16,7 +16,7 @@
     <a class="arcade" href="https://decadenceinc.com">✦ <span>DECADENCE ARCADE</span></a>
     <button hidden id="sound" class="icon" aria-label="Turn sound on" aria-pressed="false"><svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Zm4 3a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sound-state">OFF</span></button>
   <button id="menu" class="icon" aria-label="Settings">⚙</button></header>
-  <div id="connection-status" class="connection-status" hidden role="status"></div><main>
+  <div id="connection-status" class="connection-status" hidden role="status"></div><div id="effect-announcement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div><div id="game-announcement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div><aside id="recovery-bar" hidden><span id="recovery-message" role="status"></span><small id="recovery-elapsed" aria-live="off"></small><button id="retry-connection">Retry now</button><button id="recovery-leave">Leave table</button></aside><aside id="lifecycle-bar" hidden><span id="lifecycle-message" role="status"></span><button id="dismiss-lifecycle" aria-label="Dismiss table notice">×</button></aside><main>
     <section class="opening" id="opening" aria-labelledby="title">
       <div class="brand">
         <span class="eyebrow">A TABLE FOR THE BOLD</span>
@@ -47,10 +47,11 @@
     <section id="table-screen" class="table-screen" hidden aria-label="Game table">
       <div class="table-heading"><button class="icon" id="home" aria-label="Back to opening">←</button><div><span class="eyebrow">PRIVATE TABLE</span><h2>Round 6 <small>/ 10</small></h2></div><button class="icon" id="table-settings" aria-label="Settings">⚙</button><button class="icon" id="scores" aria-label="Scores and round history">♛</button><button class="icon" id="guide" aria-label="How to play">?</button></div>
       <div class="turn-banner"><strong>Your turn, Captain</strong><span>3 players after you · Sam leads with Black 12</span></div>
+      <p id="action-error" class="action-error" role="status"></p>
       <section id="bidding-view" class="bidding-view" hidden aria-label="Private bidding"></section>
       <div id="table" class="table-grid"></div>
       <section id="phase-panel" class="phase-panel" hidden></section>
-      <div class="hand-zone">
+      <div class="hand-zone"><details id="trick-feedback" hidden><summary>What changed this trick?</summary><ul id="feedback-list" tabindex="0" aria-label="Current trick explanation"></ul></details>
         <div class="hand-label"><strong>Your hand</strong><span>Tap for powers · swipe up to play</span></div>
         <div class="ability" id="ability" hidden role="status"></div>
         <div id="hand" class="hand"></div>

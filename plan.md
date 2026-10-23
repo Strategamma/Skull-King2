@@ -1,40 +1,103 @@
 # Goal
-Build a complete, polished Skull King PWA for Decadence Arcade.
+Resolve the 20 findings in `docs/qa/2026-10-23-ux-audit.md`: make every turn, choice and outcome understandable and operable on a phone, with reliable keyboard access and restrained event-driven feedback.
 
-## Scope
-2–10 private seats, base/full expansion, all abilities, bots/recovery, score history, mobile gestures, original dimensional art and victory effects.
+# Scope
+Keep the existing DOM/CSS client, authoritative Node/ws service, rules, artwork and approved pirate identity. Cover lobby/join, bidding, inspection/play, all powers, trick/round/final results, library, settings and recovery notices. No dependencies, rule changes or deployment. Add server presentation metadata only where the client cannot safely infer public events. Preserve private hands and sealed bids.
 
-## Approach
-1. Verify current official rulebooks; specify timing, legal moves, scoring and interaction cases.
-2. Create a wordmark/card/table visual target for review, then produce separate coherent card assets.
-3. Implement and test a pure rules engine, authoritative room service, private snapshots and durable recovery.
-4. Build mobile screens, contextual teaching, swipe controls, distinct ability animations and celebrations.
-5. Integrate PWA, Render configuration and full multiplayer verification.
+# Approach
+Implement in five reviewable phases; verify each before proceeding.
 
-## Risks
-Publisher printables include an older edition; do not treat that PDF as the current base rules. First Mate, forced plays, Last Volley and creature interactions require explicit timing tests. Ten seats constrain both deck capacity and narrow-screen readability. Generated mockups do not establish working UI or actual 3D models.
+1. **Reliable interaction** — findings 1, 2, 6, 12, 17.
+   - Track pending actions; recover enabled controls on rejection/disconnection without automatically replaying gameplay actions. Refresh authoritative state when necessary; preserve selections only while still valid.
+   - Preserve focus by stable control/card identity across renders. Move focus deliberately on phase changes, inspection open/close and decision steps; announce concise turn/error changes without repeated snapshot announcements.
+   - Keep bidding cards bright and inspectable. Separate inspection availability from play legality; show the actual restriction, including Mary-forced play.
+   - Validate five-letter join codes, support Enter and show create/join pending feedback.
+   - Gate: stale/rejected actions remain retryable; keyboard-only bidding/inspection/play works; no duplicate submissions or illegal plays.
 
-## Verification
-Rules unit tests and full-match simulations; private-state/network lifecycle integration tests; browser QA at 320px/390px and desktop, gesture checks, PWA checks. Real phones, deployed Render and service-restart checks remain separate release gates.
+2. **Clear turns and power choices** — findings 3, 4, 5, 14.
+   - Add compact lead-suit/current-winner guidance, local won/bid progress and players still to act. Handle no established suit, destroyed tricks and Volley explicitly.
+   - Structure card help into Role / Timing / Effect / Bonus; use explicit choice labels.
+   - Give power steps stable identity and source-card context. First Mate identifies each inherited power; Bendt identifies discard progress.
+   - Use select → consequence preview → Confirm for discards, wagers, target/forced-card choices and bid changes; leave simple informational Continue immediate. Validate confirmation against the current decision.
+   - Gate: exercise every power, consecutive same-kind steps, decline paths and final-trick exceptions. Another player's view never reveals private choices or cards.
 
-## Current evidence
-Opening/setup/oval ten-seat preview implemented, with shared center cards, complete special-card art/catalog, play validator and bonus ledger. Syntax and 11 targeted rules/scoring tests pass. In-app browser verified illegal Yellow 14 swipe preserves the hand, legal Black 9 moves once and locks the turn, all 19 guide images load, and bonus breakdown is readable. Standalone Playwright runner could not launch its missing Chromium binary. Preview at localhost:3000 (`PORT=3000 npm run dev`). Full trick/power execution, multiplayer, durable recovery, PWA and device/release checks remain pending.
+3. **Readable results and scoring** — findings 7, 8, 9, 20.
+   - Replace the obstructive trick panel with a compact result tray; keep the winning play and owner visible and let players expand the explanation.
+   - Put the local won/bid, exact/missed status, bid points, bonus, round delta and new total directly on round results.
+   - Keep semantic score tables; add a sticky player column and visible overflow cue, with accessible per-player bonus details.
+   - Use shared ranks for ties across seats, podium and final results; preserve the existing final celebration.
+   - Gate: normal/destroyed tricks, positive/negative/zero-bid scoring, ties and long names read correctly at narrow widths. Scores match authoritative results.
 
-Responsive refinement: fill the viewport, enlarge public cards, calculate 2–10 seat positions, and offer enlarged card inspection. Risk: ten-seat readability at 320px; verify no page overflow or hand clipping. Layout unit test covers all counts; browser checks cover 2/4/6/10 seats, 320×568 and 390×844.
+4. **Meaningful animation and lifecycle feedback** — findings 10, 11, 19.
+   - Key deal/play effects to stable card and round/trick identities. Initial/resumed snapshots establish a baseline; unrelated updates must not replay effects.
+   - Add short labeled capture/removal/creature/Locker cues and public power outcomes. Keep static explanations available after motion ends. Add minimal public outcome metadata if snapshots lack sufficient evidence; do not infer hidden decisions.
+   - Announce host changes, bot takeover and reconnect status with accurate grace/storage limits; provide an explicit turn-alert test.
+   - Gate: duplicate snapshots, reconnect, hidden-page return and chained powers cause no duplicate effects/sounds. Reduced motion preserves all meaning; mute/visibility rules remain effective.
 
-Current UI refinement: replace detached plays with grouped player/card place settings. Scope: ownership clarity, upright card faces, mirrored sides, quiet waiting slots and leader outline; hide preview selectors behind gear. Verify compact ten-seat/ten-card fit, small-table bounds, and legal play inserting into the owner's panel. No multiplayer or rule scope change.
+5. **Phone layout and teaching** — findings 13, 15, 16, 18.
+   - Compact bidding and prioritize the hand; show selected-bid scoring stakes, including zero.
+   - Improve functional text hierarchy and 44px touch areas where feasible. Dense tables get an accessible player-detail view; preserve ownership and all hand cards.
+   - Add lobby/settings help, mode descriptions and specific start blockers. Explain two-player exclusions and the Mary house rule before starting.
+   - Filter the library by Base / Expansion / All with current-mode cues, preserved return position and navigation back to rules.
+   - Gate: no clipped controls, overlapping seat panels or hidden private cards in the responsive matrix; essential actions remain discoverable.
 
-## Ability screen review
-Goal/scope: prepare every base/advanced/expansion special screen and numbered bonus/mode variants. Approach: reuse card artwork and rules metadata; isolated interactive sample decisions behind ? and settings. Risks: previews are not authoritative effect execution; hidden-state and eligibility need server integration. Verification: all 24 screens opened in-browser; Mary two-step selection, Bendt exact-two discards and First Mate queue checked; 18 tests and syntax checks pass.
+# Risks
+- Ten seats plus ten cards at 320×568 require prioritization; do not solve density by shrinking critical text further.
+- Wholesale rendering can reset focus or replay effects. Use small reconciliation helpers and stable identities rather than a framework rewrite.
+- Decision metadata/outcome notices must respect per-viewer privacy. Server state remains the source of legality, scoring and progression.
+- Confirmation adds taps: apply it only to consequential power choices, not ordinary card play or informational steps.
+- The audit's source-only findings need reproduction during implementation. Reassess any finding that current runtime evidence disproves.
 
-## Bug playtest
-Goal: exercise current local preview. Scope: opening/setup, illegal/legal plays, bid privacy/reveal, standings, abilities, settings, mobile/desktop and keyboard. Approach: isolated in-app browser, reproduce before changing; targeted fixes and regression checks. Risks: no full-match/network runtime exists; browser testing cannot prove installed-device behavior. Verification: syntax/unit checks, responsive screenshots and affected interaction reruns.
+# Verification
+- Per phase: targeted regressions for changed behavior, `npm run check`; run `npm test` after engine/room metadata changes and once for the integrated implementation. Add tests for decision identity, privacy, action recovery and event deduplication where appropriate.
+- Browser: create/join/lobby → bidding → legal/illegal play → each power → trick/round/final results → rematch/leave; keyboard focus, stale rejection, disconnect/resume, takeover, host transfer and tied scores.
+- Screenshots: 2/4/6/10 seats at 320×568, 390×844 and 1280×800; late rounds, ten-card hands, long names, Volley pairs, power choices and score overflow. Inspect actual screenshots as well as geometry.
+- Accessibility: keyboard-only traversal, meaningful announcements, adequate targets, color-independent states and reduced-motion behavior. Use a real screen reader before claiming screen-reader certification.
+- Physical phone: swipe cancellation/scroll interaction, audio unlock/mute and haptics. Installed PWA, deployed Render and background behavior remain separate checks; report any unperformed checks explicitly.
+- Finish by updating the audit with resolved/open evidence and compressing durable decisions into `docs/PROJECT.md` (<500 words). No publication is part of this plan.
 
-## Game feel and bots
-Goal: make turn changes unmistakable and interactions rewarding. Scope: event-driven avatar highlighting, optional turn chime/haptics, bid/card/result/ability feedback, and a legal-move bot policy using only its own hand and public plays. Approach: reuse WebAudio/DOM, add testable alert deduplication and bot helpers, expose sample bot and turn transitions in settings. Risks: mobile browsers restrict background audio and vibration; no live multiplayer controller exists. Verification: unit tests for legality/strategy/alerts, syntax checks, browser transitions and responsive screenshots; physical phone alert verification remains required.
+# Phase 1 execution · 2026-10-24
 
-## Live package and screenshot fixes
-Goal: replace previews with working systems and create runtime-only game/ repository. Implemented authoritative engine, ws rooms, private snapshots, powers/bots/recovery, actual client flows, PWA caching, persisted state and Render blueprint. Screenshot fixes: public Tigress role, suit-colored power choices, contained horizontal Volley pair, immediate final winner plus ledger, tabular round history. Verified 51 tests, runtime syntax, actual 204-action WebSocket match with reconnect, live browser flow and isolated screenshot states. User will push prepared game/ repository; no GitHub upload or hosted deployment claimed.
+Goal/scope: implement reliable interaction only (findings 1, 2, 6, 12, 17). Approach: small request/ack additions to the existing protocol, client pending/focus state, accurate legality labels and a native join form. No rule changes.
 
-## Canonical root correction
-Goal: deploy directly from Codex/Skull King. Scope: flatten tracked production package into the existing root Git repo; retire duplicate game/public trees, prototype-only tests and generated output. Approach: preserve prior files and nested Git history in a temporary recovery folder, update test/import/start paths, retain the real root Git repo. Risk: wrong Render Root Directory; it must now be blank. Verification: clean npm ci, runtime check, all 48 remaining production tests, healthz200 from root npm start. Old preview-only tests were retired, not bypassed.
+Actionable items:
+- [x] Correlate acknowledgments to the requester; unrelated broadcasts cannot clear pending actions.
+- [x] Return fresh viewer-specific state on rejection; restore controls and valid bid selection.
+- [x] Guard duplicate submission; disable pending gameplay controls; never queue/replay uncertain gameplay actions.
+- [x] Reconcile by resume after connection loss or a 15-second response timeout. Block gameplay until the resumed state arrives.
+- [x] Stop automatic reclaim when the seat is opened in another window (close code 4001).
+- [x] Preserve stable card/control focus, inspection return focus and deliberate phase/decision heading focus; deduplicate turn announcements.
+- [x] Keep bidding cards readable; explain forced-card versus follow-suit versus waiting restrictions.
+- [x] Validate/normalize join codes, support Enter, retain failed-join dialog and show pending/error feedback.
+- [ ] Complete physical-device and real screen-reader validation (separate release checks).
+
+Contingencies:
+| Condition | Handling |
+| --- | --- |
+| Incomplete or malformed join code | Normalize English letters; disable submission until exactly five; native form validation. |
+| Missing/full/started room | Inline error, preserve input and allow retry on the same connection. |
+| Repeated click / unrelated player update | One in-flight request; only matching acknowledgment settles it. |
+| Stale revision / illegal action | Reject without client replay; refresh private snapshot, restore valid controls/selection. |
+| Action applied but reply lost | Reconnect/resume and display actual state; do not resend the action. |
+| No reply / stalled connection | 15-second watchdog closes the socket; resume if a session token is known, otherwise allow a new attempt. |
+| Expired/removed seat or missing saved room | Clear unusable session, return to opening and explain the failure. |
+| Seat opened elsewhere | Stop reconnecting; direct the player to the other window. |
+| Card/control removed or decision changed | Focus current phase/decision heading; never retain a stale play action. |
+| Modal open during remote updates | Do not steal modal focus; restore a valid game target after close. |
+| Server storage lost on restart | Report missing room; recovery cannot reconstruct lost server data. |
+
+Risks: live deployment requires matching client/server acknowledgment support; physical touch and screen-reader behavior require separate verification. Existing reduced-motion, rules and privacy behavior must remain unchanged.
+
+Verification evidence is recorded in `docs/qa/2026-10-24-phase1.md`; phases 2–5 remain pending.
+
+Reassessment: the final randomized simulation exposed an existing First Mate Mary → Bendt deadlock (marked card could be discarded). Scope expanded by one engine filter and one deterministic regression to preserve the required next play; 52 tests and 900 additional expansion matches pass. No new house rule introduced.
+
+# Next selected workstream · animation and recovery
+
+Plan only, requested 2026-10-24. Detailed goal/scope/approach/risks/verification: `docs/ANIMATION_RECOVERY_PLAN.md`. Implement phase 4 next while leaving phases 2–3 pending. Prioritize stable event identity and privacy before visual cues; preserve phase-1 action recovery and focus. No runtime changes in this planning pass.
+
+# Animation and recovery implementation · 2026-10-24
+
+Implemented: stable match identity (including saved-match migration), bounded public outcome summaries, snapshot event tracking, accepted play/deal/reveal/leader/round cues, sea-effect overlays and persistent removal/cancellation/suit-neutralization labels, private-safe power summaries/source portraits, final-trick explanation, reconnect baselines, host/takeover/return notices, separate recovery controls/elapsed wait, lobby countdown and alert test. Motion cancels on navigation/hidden page/preference change; unrelated renders retain elapsed cue time. Sound is capped to one cue per snapshot batch.
+
+Verification: 63 tests and syntax/diff checks pass; live create/bid/play, two-client disconnect/host transfer/reclaim, alert test and ten-seat 320px special-effect fixture checked. Ten-seat 390px/desktop screenshots and integrated rejection/timeout checks also passed. Evidence and remaining QA are in `docs/qa/2026-10-24-feedback.md`. Full 2/4/6/10-seat responsive coverage, every animated special outcome, real reduced-motion/screen-reader and physical-phone checks remain open. No deployment. Phases 2–3 and unrelated teaching work remain pending.

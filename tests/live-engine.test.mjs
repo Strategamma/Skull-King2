@@ -21,3 +21,39 @@ test('complete negative-scoring round preserves finite negative totals',()=>{con
 for(const first of ['a','b'])test(`Volley plus Escape beats Locker with ${first} leading`,()=>{const m=fixture({a:[card('volley'),card('escape')],b:[card('locker'),numberCard('green',2)]});m.order=first==='a'?['a','b']:['b','a'];m.turn=first;for(const id of m.order)act(m,id,{type:'play',cardId:id==='a'?'volley':'locker'});assert.equal(m.turn,'a');act(m,'a',{type:'play',cardId:'escape'});assert.equal(m.result.winnerId,'a');assert.equal(m.result.winningCardId,'escape');assert.match(m.result.reason,/Escape wins/);});
 test('final round immediately computes match standings and history exactly once',()=>{const m=fixture({a:[numberCard('green',14)],b:[card('escape')]});m.round=10;m.dealt=1;m.trick=1;m.scores={a:-20,b:-30};m.bids={a:1,b:0};for(const id of m.players)act(m,id,{type:'play',cardId:m.hands[id][0].id});assert.equal(m.phase,'finished');assert.deepEqual(m.result.results.map(r=>[r.id,r.score]),[['a',10],['b',-20]]);assert.deepEqual(m.history.at(-1).results,m.result.results);const before=JSON.stringify(m);assert.throws(()=>act(m,'b',{type:'continue'}));assert.equal(JSON.stringify(m),before);});
 test('final match waits for Harry before awarding final scores',()=>{const m=fixture({a:[card('harry')],b:[card('escape')]});m.round=10;m.dealt=1;m.trick=1;m.bids={a:0,b:0};for(const id of m.players)act(m,id,{type:'play',cardId:m.hands[id][0].id});assert.equal(m.phase,'decision');assert.equal(m.history.length,0);act(m,'a',{type:'choose',value:'1'});assert.equal(m.phase,'finished');assert.equal(m.scores.a,20);assert.equal(m.history.length,1);});
+
+test('inherited Bendt cannot discard the card Mary requires next trick',()=>{
+ const m=fixture({a:[card('first-mate'),numberCard('green',1)],b:[card('mary'),numberCard('black',2)],c:[card('bendt'),numberCard('purple',2)]});
+ m.reserve=[numberCard('yellow',3),numberCard('yellow',4)];
+ for(const id of m.players)act(m,id,{type:'play',cardId:m.hands[id][0].id});
+ assert.equal(m.decision.kind,'power:force');act(m,'a',{type:'choose',value:'a'});
+ act(m,'a',{type:'choose',value:'green-1'});assert.equal(m.decision.kind,'power:exchange');
+ act(m,'a',{type:'choose',value:'use'});
+ for(let i=0;i<2;i++){
+  assert.ok(m.decision.options.every(o=>o.value!=='green-1'));
+  assert.throws(()=>act(m,'a',{type:'choose',value:'green-1'}),/available option/);
+  act(m,'a',{type:'choose',value:m.decision.options[0].value});
+ }
+ act(m,'a',{type:'continue'});const action=botAction(m,'a');assert.equal(action.cardId,'green-1');
+ act(m,'a',action);assert.equal(m.forced.a,undefined);
+});
+
+test('feedback explains Locker and removed creatures without changing resolution',()=>{
+ const m=fixture({a:[card('kraken')],b:[numberCard('green',8)],c:[card('locker')]});
+ for(const id of m.players)act(m,id,{type:'play',cardId:m.hands[id][0].id});
+ const events=snapshot(m,'a').feedback;assert.ok(events.some(e=>e.kind==='locker'&&e.cardIds.includes('kraken')));
+ assert.ok(events.some(e=>e.kind==='trick'));assert.equal(new Set(events.map(e=>e.id)).size,events.length);
+});
+test('Mary and private exchanges never publish card selections in feedback',()=>{
+ const m=fixture({a:[card('mary'),numberCard('black',1)],b:[card('escape'),numberCard('green',3)]});
+ for(const id of m.players)act(m,id,{type:'play',cardId:m.hands[id][0].id});
+ act(m,'a',{type:'choose',value:'b'});act(m,'a',{type:'choose',value:'green-3'});
+ const notes=snapshot(m,'b').feedback;assert.ok(notes.some(e=>e.kind==='power'));
+ assert.ok(!JSON.stringify(notes).includes('green-3'));assert.ok(notes.length<=32);
+});
+test('feedback and match identity survive snapshots; next round clears old trick explanations',()=>{
+ const m=fixture({a:[numberCard('green',1)],b:[card('escape')]});m.dealt=1;
+ const id=snapshot(m,'a').matchId;for(const p of m.players)act(m,p,{type:'play',cardId:m.hands[p][0].id});
+ assert.ok(m.feedback.length);act(m,'a',{type:'continue'});assert.equal(snapshot(m,'b').matchId,id);
+ act(m,'a',{type:'continue'});assert.deepEqual(m.feedback,[]);assert.notEqual(createMatch(['a','b']).matchId,id);
+});

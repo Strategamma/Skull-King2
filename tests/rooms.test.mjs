@@ -19,3 +19,57 @@ test('ten seat limit and unauthorized controls are rejected',()=>{const mgr=new 
 test('disconnect grace expiry activates a bot and preserves a reclaimable seat',()=>{let now=100000;const mgr=new RoomManager(engine,{now:()=>now}),a=client(),b=client();mgr.handle(a,{type:'create'});mgr.handle(b,{type:'join',code:a.last('welcome').code});const seat=b.last('welcome');mgr.disconnect(b);now+=59999;mgr.tick();assert.equal(mgr.rooms.get(seat.code).players.find(p=>p.id===seat.playerId).bot,false);now+=2;mgr.tick();assert.equal(mgr.rooms.get(seat.code).players.find(p=>p.id===seat.playerId).bot,true);const c=client();mgr.handle(c,{type:'resume',code:seat.code,token:seat.token});assert.equal(c.last('state').room.players.find(p=>p.id===seat.playerId).bot,false);});
 test('stale continue cannot skip a scoring review; host may rematch only after finish',()=>{const revisionEngine={...engine,createMatch:ids=>({...engine.createMatch(ids),revision:0}),act:(m,id,a)=>{m.revision++;m.phase=m.phase==='trick'?'round':'bidding';}};const mgr=new RoomManager(revisionEngine),a=client();mgr.handle(a,{type:'create'});mgr.handle(a,{type:'add-bot'});mgr.handle(a,{type:'ready',ready:true});mgr.handle(a,{type:'start'});const r=mgr.rooms.get(a.last('welcome').code);r.match.phase='trick';mgr.handle(a,{type:'continue',revision:0});assert.equal(r.match.phase,'round');mgr.handle(a,{type:'continue',revision:0});assert.equal(r.match.phase,'round');assert.equal(r.match.revision,1);assert.match(a.last('error').message,/moved on/);mgr.handle(a,{type:'rematch'});assert.equal(r.match.phase,'round');r.match.phase='finished';mgr.handle(a,{type:'rematch'});assert.equal(r.match.phase,'play');assert.equal(r.match.revision,0);assert.equal(r.match.players.length,2);});
 test('first human to resume after restart becomes connected host',async()=>{const dir=await mkdtemp(path.join(tmpdir(),'skull-host-'));try{const mgr=new RoomManager(engine,{dataDir:dir}),a=client(),b=client();mgr.handle(a,{type:'create'});mgr.handle(b,{type:'join',code:a.last('welcome').code});const seat=b.last('welcome');await mgr.saving;const restored=new RoomManager(engine,{dataDir:dir});await restored.load();const c=client();restored.handle(c,{type:'resume',code:seat.code,token:seat.token});assert.equal(c.last('state').room.hostId,seat.playerId);await restored.saving;}finally{await rm(dir,{recursive:true,force:true});}});
+
+test('request acknowledgments follow authoritative state and errors return fresh private state',()=>{
+ const mgr=new RoomManager(engine),a=client(),b=client();
+ mgr.handle(a,{type:'create',requestId:'create-a'});
+ assert.equal(a.messages.at(-1).type,'ack');
+ assert.equal(a.messages.at(-1).requestId,'create-a');
+ const code=a.last('welcome').code;
+ mgr.handle(b,{type:'join',code,requestId:'join-b'});
+ assert.equal(b.last('ack').requestId,'join-b');
+ const ackCount=a.messages.filter(m=>m.type==='ack').length;
+ mgr.handle(b,{type:'add-bot',requestId:'rejected'});
+ assert.equal(b.last('error').requestId,'rejected');
+ assert.equal(b.messages.at(-1).type,'state');
+ assert.equal(a.messages.filter(m=>m.type==='ack').length,ackCount);
+ assert.ok(b.last('state').room.players.every(p=>!Object.hasOwn(p,'token')));
+ mgr.handle(a,{type:'ready',ready:true,requestId:'ready-a'});
+ assert.equal(a.messages.at(-1).requestId,'ready-a');
+ assert.equal(b.last('ack').requestId,'join-b');
+});
+
+test('failed join can retry on the same connection without a new seat being created',()=>{
+ const mgr=new RoomManager(engine),a=client(),b=client();
+ mgr.handle(a,{type:'create'});
+ mgr.handle(b,{type:'join',code:'ZZZZZ',requestId:'bad'});
+ assert.equal(b.last('error').requestId,'bad');assert.equal(mgr.clients.has(b),false);
+ mgr.handle(b,{type:'join',code:a.last('welcome').code,requestId:'retry'});
+ assert.equal(b.last('ack').requestId,'retry');assert.equal(b.last('state').room.players.length,2);
+});
+
+test('stale gameplay response contains latest revision and only the requester hand',async()=>{
+ const liveEngine=await import('../engine.js');const mgr=new RoomManager(liveEngine),a=client(),b=client();
+ mgr.handle(a,{type:'create'});mgr.handle(b,{type:'join',code:a.last('welcome').code});
+ mgr.handle(a,{type:'ready',ready:true});mgr.handle(b,{type:'ready',ready:true});mgr.handle(a,{type:'start'});
+ const first=a.last('state').room.match;
+ mgr.handle(b,{type:'bid',bid:0,revision:first.revision,requestId:'other-bid'});
+ mgr.handle(a,{type:'bid',bid:0,revision:first.revision,requestId:'stale-bid'});
+ assert.equal(a.last('error').requestId,'stale-bid');
+ const fresh=a.last('state').room.match;
+ assert.ok(fresh.revision>first.revision);assert.deepEqual(fresh.hand,first.hand);
+ assert.equal(fresh.players.find(p=>p.id===b.last('welcome').playerId).bid,null);
+ assert.equal(Object.hasOwn(fresh,'hands'),false);
+ assert.ok(a.last('state').room.players.every(p=>!Object.hasOwn(p,'token')));
+ mgr.handle(a,{type:'bid',bid:0,revision:fresh.revision,requestId:'retry-bid'});
+ assert.equal(a.last('ack').requestId,'retry-bid');assert.equal(a.last('state').room.match.phase,'play');
+});
+
+test('legacy persisted matches gain a stable match identity on load',async()=>{
+ const dir=await mkdtemp(path.join(tmpdir(),'skull-feedback-'));try{
+  const mgr=new RoomManager(engine,{dataDir:dir}),a=client();mgr.handle(a,{type:'create'});mgr.handle(a,{type:'add-bot'});mgr.handle(a,{type:'ready',ready:true});mgr.handle(a,{type:'start'});
+  await mgr.saving;const restored=new RoomManager(engine,{dataDir:dir});await restored.load();
+  const room=[...restored.rooms.values()][0],identity=room.match.matchId;assert.equal(typeof identity,'string');assert.ok(identity.length);
+  assert.equal(restored.state(room,room.players[0].id).room.match.matchId,identity);
+ }finally{await rm(dir,{recursive:true,force:true});}
+});

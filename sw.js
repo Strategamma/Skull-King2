@@ -1,5 +1,5 @@
-const CACHE='skull-king-shell-v4';
-const SHELL=['./','./index.html','./style.css','./app.js','./cards.js','./audio.js','./victory.js','./rules.js','./bot.js','./table-layout.js','./turn-alerts.js','./config.js','./manifest.webmanifest','./assets/app-icon-192.png','./assets/app-icon-512.png','./assets/skull-king-wordmark-matte.png','./assets/captains-cabin.png'];
+const CACHE='skull-king-shell-v5';
+const SHELL=['./','./index.html','./style.css','./app.js','./feedback.js','./cards.js','./audio.js','./victory.js','./rules.js','./bot.js','./table-layout.js','./turn-alerts.js','./config.js','./manifest.webmanifest','./assets/app-icon-192.png','./assets/app-icon-512.png','./assets/skull-king-wordmark-matte.png','./assets/captains-cabin.png'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL))));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('skull-king-shell-')&&k!==CACHE).map(k=>caches.delete(k))))));
 self.addEventListener('fetch',event=>{
