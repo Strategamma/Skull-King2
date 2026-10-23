@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {makeDeck,numberCard,SPECIALS} from '../public/cards.js';
-import {playError,commitPlay,leadSuit,scoreRound,captureBonuses,awardedBonuses} from '../public/rules.js';
+import {makeDeck,numberCard,SPECIALS} from '../cards.js';
+import {playError,commitPlay,leadSuit,scoreRound,captureBonuses,awardedBonuses} from '../rules.js';
 const black=numberCard('black',9),yellow=numberCard('yellow',14),escape=SPECIALS.find(c=>c.id==='escape');
 const state=()=>({phase:'play',turn:'me',hands:{me:[black,yellow,escape]},plays:[{playerId:'sam',card:numberCard('black',12)}]});
 test('illegal off-suit is rejected without mutation; specials remain legal',()=>{const s=state();assert.match(playError(s,'me',yellow.id),/Follow black/);assert.equal(playError(s,'me',escape.id),null);assert.equal(commitPlay(s,'me',yellow.id).state,s);assert.equal(s.hands.me.length,3);});

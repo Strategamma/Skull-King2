@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {chooseBotPlay,bidForHand} from '../public/bot.js';
-import {numberCard,SPECIALS,makeDeck} from '../public/cards.js';
-import {playError} from '../public/rules.js';
+import {chooseBotPlay,bidForHand} from '../bot.js';
+import {numberCard,SPECIALS,makeDeck} from '../cards.js';
+import {playError} from '../rules.js';
 const escape=SPECIALS.find(c=>c.id==='escape');
 const hand=[numberCard('black',9),numberCard('black',13),numberCard('yellow',6),escape];
 const plays=[{playerId:'a',card:numberCard('black',8)}];

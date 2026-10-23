@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createMatch,act,snapshot,botAction} from '../game/engine.js';
-import {SPECIALS,numberCard} from '../game/cards.js';
+import {createMatch,act,snapshot,botAction} from '../engine.js';
+import {SPECIALS,numberCard} from '../cards.js';
 const card=kind=>({...SPECIALS.find(c=>c.kind===kind),id:kind});
 function fixture(hands){const m=createMatch(Object.keys(hands),{expansion:true});Object.assign(m,{phase:'play',round:6,dealt:2,trick:1,hands,bids:Object.fromEntries(m.players.map(id=>[id,1])),order:m.players,index:0,turn:m.players[0],plays:[],volleyDone:[],removed:[],plankDone:[],skip:[]});return m;}
 test('all seat counts complete ten rounds with legal bot actions',()=>{for(let n=2;n<=10;n++){const m=createMatch(Array.from({length:n},(_,i)=>`p${i}`),{expansion:true});let steps=0;while(m.phase!=='finished'&&steps++<5000){const id=m.phase==='bidding'?m.players.find(id=>!Object.hasOwn(m.bids,id)):m.decision?.playerId||m.turn||m.players[0];act(m,id,botAction(m,id));}assert.equal(m.phase,'finished');assert.equal(m.history.length,10);assert.ok(m.history.every(r=>r.results.every(p=>Number.isFinite(p.score))));}});

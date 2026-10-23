@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: skull-king
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run check
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: 22

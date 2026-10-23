@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdtemp,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {RoomManager} from '../game/rooms.js';
+import {RoomManager} from '../rooms.js';
 const engine={createMatch:players=>({players,phase:'play',turn:players[0]}),snapshot:(m,id)=>({...m,own:id}),act:(m,id,a)=>{m.last={id,type:a.type};},botAction:()=>({type:'play',cardId:'sample'})};
 const client=()=>({messages:[],send(s){this.messages.push(JSON.parse(s));},last(type){return this.messages.filter(m=>m.type===type).at(-1);}});
 test('private rooms gate starts, hide tokens and reclaim disconnected seats',()=>{

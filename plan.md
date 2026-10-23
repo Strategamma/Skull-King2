@@ -35,3 +35,6 @@ Goal: make turn changes unmistakable and interactions rewarding. Scope: event-dr
 
 ## Live package and screenshot fixes
 Goal: replace previews with working systems and create runtime-only game/ repository. Implemented authoritative engine, ws rooms, private snapshots, powers/bots/recovery, actual client flows, PWA caching, persisted state and Render blueprint. Screenshot fixes: public Tigress role, suit-colored power choices, contained horizontal Volley pair, immediate final winner plus ledger, tabular round history. Verified 51 tests, runtime syntax, actual 204-action WebSocket match with reconnect, live browser flow and isolated screenshot states. User will push prepared game/ repository; no GitHub upload or hosted deployment claimed.
+
+## Canonical root correction
+Goal: deploy directly from Codex/Skull King. Scope: flatten tracked production package into the existing root Git repo; retire duplicate game/public trees, prototype-only tests and generated output. Approach: preserve prior files and nested Git history in a temporary recovery folder, update test/import/start paths, retain the real root Git repo. Risk: wrong Render Root Directory; it must now be blank. Verification: clean npm ci, runtime check, all 48 remaining production tests, healthz200 from root npm start. Old preview-only tests were retired, not bypassed.

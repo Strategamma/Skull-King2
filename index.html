@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#071e25">
+  <meta name="description" content="Skull King — a pirate card table from Decadence Arcade.">
+  <title>Skull King · Decadence Arcade</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./assets/app-icon-192.png">
+</head>
+<body>
+  <div class="backdrop" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="arcade" href="https://decadenceinc.com">✦ <span>DECADENCE ARCADE</span></a>
+    <button hidden id="sound" class="icon" aria-label="Turn sound on" aria-pressed="false"><svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Zm4 3a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sound-state">OFF</span></button>
+  <button id="menu" class="icon" aria-label="Settings">⚙</button></header>
+  <div id="connection-status" class="connection-status" hidden role="status"></div><main>
+    <section class="opening" id="opening" aria-labelledby="title">
+      <div class="brand">
+        <span class="eyebrow">A TABLE FOR THE BOLD</span>
+        <h1 id="title" class="pirate-wordmark"><img src="./assets/skull-king-wordmark-matte.png" alt="Skull King" width="1536" height="1024" fetchpriority="high"></h1>
+        <p class="tagline">Bid boldly. Rule the table.</p>
+      </div>
+      <div class="entry">
+        <label for="name">YOUR PIRATE NAME</label>
+        <input id="name" maxlength="32" autocomplete="nickname" placeholder="Captain…">
+        <button class="primary" id="create">CREATE A TABLE <span aria-hidden="true">➜</span></button>
+        <button class="secondary" id="join">JOIN YOUR CREW</button>
+        <button class="text-button" id="learn">? &nbsp; How to play</button>
+      </div>
+      <p class="footnote">2–10 PIRATES <span>✦</span> PRIVATE TABLES</p>
+      
+      
+    </section>
+    <section id="lobby-screen" class="lobby-screen" hidden aria-label="Private lobby">
+      <button class="icon" id="leave-lobby" aria-label="Leave table">←</button>
+      <span class="eyebrow">YOUR PRIVATE TABLE</span><h2 id="room-code"></h2>
+      <button id="share-room" class="secondary">Share table code</button>
+      <div class="lobby-mode"><button id="base-mode" aria-pressed="true">Base game</button><button id="full-mode" aria-pressed="false">Full expansion</button></div>
+      <div id="crew-list"></div><p id="lobby-status" role="status"></p>
+      <button class="primary" id="ready">Ready to sail</button>
+      <button class="secondary" id="add-bot">Add a bot</button>
+      <button class="primary" id="start">Set sail →</button>
+    </section>
+    <section id="table-screen" class="table-screen" hidden aria-label="Game table">
+      <div class="table-heading"><button class="icon" id="home" aria-label="Back to opening">←</button><div><span class="eyebrow">PRIVATE TABLE</span><h2>Round 6 <small>/ 10</small></h2></div><button class="icon" id="table-settings" aria-label="Settings">⚙</button><button class="icon" id="scores" aria-label="Scores and round history">♛</button><button class="icon" id="guide" aria-label="How to play">?</button></div>
+      <div class="turn-banner"><strong>Your turn, Captain</strong><span>3 players after you · Sam leads with Black 12</span></div>
+      <section id="bidding-view" class="bidding-view" hidden aria-label="Private bidding"></section>
+      <div id="table" class="table-grid"></div>
+      <section id="phase-panel" class="phase-panel" hidden></section>
+      <div class="hand-zone">
+        <div class="hand-label"><strong>Your hand</strong><span>Tap for powers · swipe up to play</span></div>
+        <div class="ability" id="ability" hidden role="status"></div>
+        <div id="hand" class="hand"></div>
+        <p class="table-note" id="table-note" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
+  <dialog id="modal"><button class="icon close" aria-label="Close dialog">×</button><div id="modal-content"></div></dialog>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

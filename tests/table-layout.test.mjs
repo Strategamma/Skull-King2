@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {tableLayout} from '../public/table-layout.js';
+import {tableLayout} from '../table-layout.js';
 test('2–10 seats spread evenly with the local player at bottom',()=>{
   for(let count=2;count<=10;count++) {
     const players=Array.from({length:count},(_,i)=>({id:String(i)}));

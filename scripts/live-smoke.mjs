@@ -1,4 +1,4 @@
-import WebSocket from '../game/node_modules/ws/wrapper.mjs';
+import WebSocket from 'ws';
 import assert from 'node:assert/strict';
 const url=process.env.WS_URL||'ws://localhost:3001/socket';
 function client(){const ws=new WebSocket(url),c={ws,state:null,welcome:null,events:[]};c.open=new Promise((resolve,reject)=>{ws.on('open',resolve);ws.on('error',reject);});ws.on('close',(code,reason)=>c.closed=`${code}: ${reason}`);ws.on('message',raw=>{const m=JSON.parse(raw);c.events.push(m);if(m.type==='state')c.state=m.room;if(m.type==='welcome')c.welcome=m;});return c;}

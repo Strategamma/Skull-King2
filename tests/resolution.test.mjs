@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {SPECIALS,numberCard} from '../public/cards.js';
-import {resolvePlankTrick,recordResolvedTrick,awardedBonuses,scoreRound,marySelection,markMaryCard,playError} from '../public/rules.js';
+import {SPECIALS,numberCard} from '../cards.js';
+import {resolvePlankTrick,recordResolvedTrick,awardedBonuses,scoreRound,marySelection,markMaryCard,playError} from '../rules.js';
 const special=id=>SPECIALS.find(c=>c.id===id);
 const play=(playerId,id)=>({playerId,card:special(id)});
 test('Plank removes a pirate before King capture bonuses, records exactly once',()=>{

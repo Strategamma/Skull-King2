@@ -1,3 +1,4 @@
+import {VICTORY_MELODY} from './victory.js';
 // Original synthesized sounds with separate ambience, effects and turn-alert routing.
 export class PirateAudio {
   enabled=false;
@@ -18,17 +19,18 @@ export class PirateAudio {
   }
   async unlock() {this.ensureContext();await this.syncVisibility();}
   async toggle() {
-    this.ensureContext();this.enabled=!this.enabled;
+    this.ensureContext();this.enabled=!this.enabled;if(!this.enabled)this.stopVictory();
     this.effects.gain.value=this.enabled?1:0;this.ambience.gain.cancelScheduledValues(this.context.currentTime);this.ambience.gain.value=this.enabled?.1:0;
     await this.syncVisibility();if(this.enabled)this.play('bell');return this.enabled;
   }
   async syncVisibility() {
     if(!this.context)return;
-    if((this.enabled||this.alertsEnabled)&&!document.hidden) await this.context.resume();else await this.context.suspend();
+    if((this.enabled||this.alertsEnabled)&&!document.hidden) await this.context.resume();else {this.stopVictory();await this.context.suspend();}
   }
   play(kind='click') {
     const alert=kind==='turn';
     if((alert?!this.alertsEnabled:!this.enabled)||this.context?.state!=='running')return;
+    if(kind==='victory'){this.playVictory();return;}
     const ctx=this.context,now=ctx.currentTime,bus=alert?this.alerts:this.effects;
     if(['turn','victory','reveal','coins','power'].includes(kind)) {
       const notes={turn:[659,988],victory:[392,494,587,784],reveal:[330,440,660],coins:[1175,1568,1319],power:[196,294,392]}[kind];
@@ -43,9 +45,28 @@ export class PirateAudio {
     const tones=kind==='bell'?[440,880,1320]:kind==='creak'?[94,141]:kind==='error'?[160,130]:[330*(.98+Math.random()*.04)];
     tones.forEach(f=>this.tone(f,now,kind==='bell'?1.2:.22,bus,.14/tones.length,kind==='creak'?'triangle':'sine'));
   }
+  stopVictory() {
+    for(const voice of this.victoryVoices||[]) {try {voice.stop();} catch {}}
+    this.victoryVoices=[];
+    if(this.ambience&&this.context){const now=this.context.currentTime;this.ambience.gain.cancelScheduledValues(now);this.ambience.gain.setTargetAtTime(this.enabled?.1:0,now,.15);}
+  }
+  playVictory() {
+    if(!this.enabled||this.context?.state!=='running')return;
+    this.stopVictory();
+    const ctx=this.context,start=ctx.currentTime+.03,beat=.22;
+    this.ambience.gain.cancelScheduledValues(start);this.ambience.gain.setTargetAtTime(.025,start,.05);this.ambience.gain.setTargetAtTime(.1,start+8.8,.5);
+    const note=(midi,time,duration,level,type='triangle')=>{
+      this.victoryVoices.push(this.tone(440*2**((midi-69)/12),time,duration,this.effects,level,type));
+    };
+    let cursor=0;
+    for(const [midi,length] of VICTORY_MELODY){note(midi,start+cursor*beat,length*beat*.86,.13);note(midi-12,start+cursor*beat,length*beat*.8,.045,'sawtooth');cursor+=length;}
+    for(let pulse=0;pulse<cursor;pulse+=3){const root=pulse<6?38:pulse<12?36:pulse<18?41:38;note(root,start+pulse*beat,.2,.2);note(root+12,start+(pulse+1.5)*beat,.14,.1);}
+    const end=start+cursor*beat;
+    for(const midi of [38,50,57,62,65,69,74])note(midi,end,1.4,.055,'triangle');
+  }
   tone(f,start,duration,bus,level,type='sine') {
     const osc=this.context.createOscillator(),gain=this.context.createGain();osc.type=type;osc.frequency.setValueAtTime(f,start);osc.frequency.exponentialRampToValueAtTime(f*.99,start+duration);
     gain.gain.setValueAtTime(.0001,start);gain.gain.exponentialRampToValueAtTime(level,start+.008);gain.gain.exponentialRampToValueAtTime(.0001,start+duration);
-    osc.connect(gain).connect(bus);osc.start(start);osc.stop(start+duration+.01);osc.onended=()=>{osc.disconnect();gain.disconnect();};
+    osc.connect(gain).connect(bus);osc.start(start);osc.stop(start+duration+.01);osc.onended=()=>{osc.disconnect();gain.disconnect();};return osc;
   }
 }

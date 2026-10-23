@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {VICTORY_MELODY,victoryMarkup} from '../game/victory.js';
-import {PirateAudio} from '../game/audio.js';
+import {VICTORY_MELODY,victoryMarkup} from '../victory.js';
+import {PirateAudio} from '../audio.js';
 const param=()=>({value:0,setValueAtTime(){},exponentialRampToValueAtTime(){},setTargetAtTime(){},cancelScheduledValues(){}});
 class Node {constructor(){this.gain=param();this.frequency=param();this.stops=0;}connect(){return this;}disconnect(){}start(){}stop(){this.stops++;}}
 class Context {currentTime=0;sampleRate=1000;state='running';destination=new Node();createGain(){return new Node();}createOscillator(){return new Node();}createBiquadFilter(){return new Node();}createBufferSource(){return new Node();}createBuffer(_channels,length){return {getChannelData:()=>new Float32Array(length)};}resume(){return Promise.resolve();}suspend(){return Promise.resolve();}}
