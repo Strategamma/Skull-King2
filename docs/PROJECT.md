@@ -1,8 +1,8 @@
 # Skull King
 
-Decadence Arcade phone-first pirate card game. `game/` is the self-contained production package for https://github.com/Strategamma/Skull-King2. `public/` is the earlier design prototype; do not deploy it. Root `npm run dev` starts the live package; `npm run preview` explicitly starts the old prototype.
+Decadence Arcade phone-first pirate card game. `game/` is the self-contained production package for https://github.com/Strategamma/Skull-King2. `public/` is historical source only and is not served or deployed. Root `npm run dev` starts the live package. The old port-3000 server redirects to port 3001; no prototype entry command remains.
 
-Architecture: dependency-light DOM/CSS client, original dimensional raster artwork, Node + ws authoritative WebSocket service. Same-origin `/socket` by default; `game/config.js` can point separate static hosting to a Render `wss://…/socket` endpoint. Install manifest and service worker cache the shell; multiplayer needs the server. Render blueprint includes a persistent disk with DATA_DIR=/var/data. Atomic JSON room snapshots survive restarts on persistent storage. Never expose the data directory or tokens.
+Architecture: dependency-light DOM/CSS client, original dimensional raster artwork, Node + ws authoritative WebSocket service. Same-origin `/socket` by default; `game/config.js` can point separate static hosting to a Render `wss://…/socket` endpoint. Install manifest and service worker cache the shell; multiplayer needs the server. Render must be free: blueprint uses plan free with no paid disk/database. Atomic JSON snapshots support recovery only while storage survives; Render Free loses rooms on sleep/restart/redeploy and has cold starts. Never expose the data directory or tokens.
 
 Rooms: 2–10 seats, five-letter English codes, accountless editable names, private random resume tokens, all-human ready gate, host controls, disconnect grace/countdown, host transfer, temporary bot takeover or permanent kick/replacement, rematch. `arcadeName` fragment is only an untrusted prefill. Room actions validate host/seat authority; revision checks reject stale gameplay actions.
 
