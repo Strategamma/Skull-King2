@@ -1,0 +1,121 @@
+[
+  {
+    "id": "rosie",
+    "name": "Rosie D’Laney",
+    "source": "/Users/farzan/.codex/generated_images/01a167b9-bbe1-73c0-8da5-f80a73ef619c/exec-e15f0955-1793-495e-a01b-34fd160b2a46.png",
+    "asset": "/Users/farzan/Documents/Codex/Skull King/public/assets/rosie.jpg",
+    "approval": "local preview only"
+  },
+  {
+    "id": "bendt",
+    "name": "Bendt the Bandit",
+    "source": "/Users/farzan/.codex/generated_images/01a167b9-bbe1-73c0-8da5-f80a73ef619c/exec-bf990acc-5b0c-4e1d-8618-2f0f99862408.png",
+    "asset": "/Users/farzan/Documents/Codex/Skull King/public/assets/bendt.jpg",
+    "approval": "local preview only"
+  },
+  {
+    "id": "rascal",
+    "name": "Rascal of Roatan",
+    "source": "/Users/farzan/.codex/generated_images/01a167b9-bbe1-73c0-8da5-f80a73ef619c/exec-6de1acab-419d-470d-af19-c819fb8d0625.png",
+    "asset": "/Users/farzan/Documents/Codex/Skull King/public/assets/rascal.jpg",
+    "approval": "local preview only"
+  },
+  {
+    "id": "juanita",
+    "name": "Juanita Jade",
+    "source": "/Users/farzan/.codex/generated_images/01a167b9-bbe1-73c0-8da5-f80a73ef619c/exec-32707cd9-bac7-46f9-a03c-0c968fe22408.png",
+    "asset": "/Users/farzan/Documents/Codex/Skull King/public/assets/juanita.jpg",
+    "approval": "local preview only"
+  },
+  {
+    "id": "harry",
+    "name": "Harry the Giant",
+    "source": "/Users/farzan/.codex/generated_images/01a167b9-bbe1-73c0-8da5-f80a73ef619c/exec-4c7fae97-12fe-4a74-88d5-4816b230ddc3.png",
+    "asset": "/Users/farzan/Documents/Codex/Skull King/public/assets/harry.jpg",
+    "approval": "local preview only"
+  },
+  {
+    "id": "tigress",
+    "name": "Tigress",
+    "source": "/Users/farzan/.codex/generated_images/01a167b9-bbe1-73c0-8da5-f80a73ef619c/exec-7088be21-43be-4afb-9a52-494fbedea4ef.png",
+    "asset": "/Users/farzan/Documents/Codex/Skull King/public/assets/tigress.jpg",
+    "approval": "local preview only"
+  },
+  {
+    "id": "mermaid",
+    "name": "Mermaid",
+    "source": "/Users/farzan/.codex/generated_images/01a167b9-bbe1-73c0-8da5-f80a73ef619c/exec-42a17514-a012-4fa6-807b-4d0b67e8dc38.png",
+    "asset": "/Users/farzan/Documents/Codex/Skull King/public/assets/mermaid.jpg",
+    "approval": "local preview only"
+  },
+  {
+    "id": "escape",
+    "name": "Escape",
+    "source": "/Users/farzan/.codex/generated_images/01a167b9-bbe1-73c0-8da5-f80a73ef619c/exec-4e1b2296-e7f6-4d63-9acc-53a5247ee635.png",
+    "asset": "/Users/farzan/Documents/Codex/Skull King/public/assets/escape.jpg",
+    "approval": "local preview only"
+  },
+  {
+    "id": "loot",
+    "name": "Loot",
+    "source": "/Users/farzan/.codex/generated_images/01a167b9-bbe1-73c0-8da5-f80a73ef619c/exec-5750028c-c9f5-4535-a5b6-f7ff5d8a2e88.png",
+    "asset": "/Users/farzan/Documents/Codex/Skull King/public/assets/loot.jpg",
+    "approval": "local preview only"
+  },
+  {
+    "id": "kraken",
+    "name": "Kraken",
+    "source": "/Users/farzan/.codex/generated_images/01a167b9-bbe1-73c0-8da5-f80a73ef619c/exec-203f0d48-d510-487e-99df-ae13578441d1.png",
+    "asset": "/Users/farzan/Documents/Codex/Skull King/public/assets/kraken.jpg",
+    "approval": "local preview only"
+  },
+  {
+    "id": "whale",
+    "name": "White Whale",
+    "source": "/Users/farzan/.codex/generated_images/01a167b9-bbe1-73c0-8da5-f80a73ef619c/exec-4d7d7583-a0dc-4251-83ec-79807bf33547.png",
+    "asset": "/Users/farzan/Documents/Codex/Skull King/public/assets/whale.jpg",
+    "approval": "local preview only"
+  },
+  {
+    "id": "mary",
+    "name": "Mary Thorne",
+    "source": "/Users/farzan/.codex/generated_images/01a167b9-bbe1-73c0-8da5-f80a73ef619c/exec-719f1b2a-a01a-410f-9b1f-67051ee49355.png",
+    "asset": "/Users/farzan/Documents/Codex/Skull King/public/assets/mary.jpg",
+    "approval": "local preview only"
+  },
+  {
+    "id": "plank",
+    "name": "Walk the Plank",
+    "source": "/Users/farzan/.codex/generated_images/01a167b9-bbe1-73c0-8da5-f80a73ef619c/exec-8fd629c1-8b86-4c75-8e8c-869dd519022e.png",
+    "asset": "/Users/farzan/Documents/Codex/Skull King/public/assets/plank.jpg",
+    "approval": "local preview only"
+  },
+  {
+    "id": "stingray",
+    "name": "Spotted Stingray",
+    "source": "/Users/farzan/.codex/generated_images/01a167b9-bbe1-73c0-8da5-f80a73ef619c/exec-e7f8a6ae-b68c-4a2a-8a68-1d156125dcc1.png",
+    "asset": "/Users/farzan/Documents/Codex/Skull King/public/assets/stingray.jpg",
+    "approval": "local preview only"
+  },
+  {
+    "id": "volley",
+    "name": "The Last Volley",
+    "source": "/Users/farzan/.codex/generated_images/01a167b9-bbe1-73c0-8da5-f80a73ef619c/exec-45fe0d8c-8189-4270-9ed2-f5a92fb75ff6.png",
+    "asset": "/Users/farzan/Documents/Codex/Skull King/public/assets/volley.jpg",
+    "approval": "local preview only"
+  },
+  {
+    "id": "locker",
+    "name": "Davy Jones’ Locker",
+    "source": "/Users/farzan/.codex/generated_images/01a167b9-bbe1-73c0-8da5-f80a73ef619c/exec-05bf0ff0-d34b-4ba1-a5f9-f6985745d367.png",
+    "asset": "/Users/farzan/Documents/Codex/Skull King/public/assets/locker.jpg",
+    "approval": "local preview only"
+  },
+  {
+    "id": "wild",
+    "name": "Wild Monkey 15",
+    "source": "/Users/farzan/.codex/generated_images/01a167b9-bbe1-73c0-8da5-f80a73ef619c/exec-b798c616-747a-41ea-9699-a6bfca85cc5e.png",
+    "asset": "/Users/farzan/Documents/Codex/Skull King/public/assets/wild.jpg",
+    "approval": "local preview only"
+  }
+]

@@ -1,0 +1,9 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {VICTORY_MELODY,victoryMarkup} from '../game/victory.js';
+import {PirateAudio} from '../game/audio.js';
+const param=()=>({value:0,setValueAtTime(){},exponentialRampToValueAtTime(){},setTargetAtTime(){},cancelScheduledValues(){}});
+class Node {constructor(){this.gain=param();this.frequency=param();this.stops=0;}connect(){return this;}disconnect(){}start(){}stop(){this.stops++;}}
+class Context {currentTime=0;sampleRate=1000;state='running';destination=new Node();createGain(){return new Node();}createOscillator(){return new Node();}createBiquadFilter(){return new Node();}createBufferSource(){return new Node();}createBuffer(_channels,length){return {getChannelData:()=>new Float32Array(length)};}resume(){return Promise.resolve();}suspend(){return Promise.resolve();}}
+test('victory fanfare has a finite score and replay/stop cancels old scheduled voices',()=>{globalThis.AudioContext=Context;const audio=new PirateAudio();audio.enabled=true;audio.ensureContext();audio.play('victory');const voices=[...audio.victoryVoices];assert.ok(voices.length>40);assert.ok(VICTORY_MELODY.reduce((n,[_pitch,d])=>n+d,0)<40);audio.play('victory');assert.ok(voices.every(v=>v.stops===2));audio.stopVictory();assert.equal(audio.victoryVoices.length,0);audio.enabled=false;audio.play('victory');assert.equal(audio.victoryVoices.length,0);});
+test('victory view declares winners, supports negative totals and preserves ledger navigation',()=>{const escape=s=>String(s).replaceAll('<','&lt;');const html=victoryMarkup({winners:[{name:'<Captain>'}],score:-10,localWinner:true,escape});assert.match(html,/&lt;Captain>/);assert.match(html,/is the Winner!/);assert.match(html,/-10/);assert.match(html,/href="#final-ledger"/);assert.equal((html.match(/--coin:/g)||[]).length,28);const tie=victoryMarkup({winners:[{name:'A'},{name:'B'}],score:90,localWinner:false,escape});assert.match(tie,/are the Winners!/);});

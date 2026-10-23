@@ -1,0 +1,12 @@
+{
+  "name": "decadence-skull-king",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npm --prefix game start",
+    "check": "node --check public/app.js && node --check public/bot.js && node --check public/turn-alerts.js && node --check public/ability-screens.js && node --check public/audio.js && node --check public/cards.js && node --check public/rules.js && node --check scripts/preview-server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "preview": "node scripts/preview-server.mjs"
+  }
+}

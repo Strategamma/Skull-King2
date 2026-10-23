@@ -1,0 +1,14 @@
+{
+  "id": "/",
+  "name": "Skull King · Decadence Arcade",
+  "short_name": "Skull King",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#071e25",
+  "theme_color": "#071e25",
+  "icons": [
+    {"src": "/assets/app-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "/assets/app-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}
+  ]
+}

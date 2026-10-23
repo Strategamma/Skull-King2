@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#071e25">
+  <meta name="description" content="Skull King — a pirate card table from Decadence Arcade.">
+  <title>Skull King · Decadence Arcade</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/assets/app-icon-192.png">
+</head>
+<body>
+  <div class="backdrop" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="arcade" href="https://decadenceinc.com">✦ <span>DECADENCE ARCADE</span></a>
+    <button id="sound" class="icon" aria-label="Turn sound on" aria-pressed="false"><svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Zm4 3a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sound-state">OFF</span></button>
+  </header>
+  <main>
+    <section class="opening" id="opening" aria-labelledby="title">
+      <div class="brand">
+        <span class="eyebrow">A TABLE FOR THE BOLD</span>
+        <h1 id="title" class="pirate-wordmark"><img src="/assets/skull-king-wordmark-matte.png" alt="Skull King" width="1536" height="1024" fetchpriority="high"></h1>
+        <p class="tagline">Bid boldly. Rule the table.</p>
+      </div>
+      <div class="entry">
+        <label for="name">YOUR PIRATE NAME</label>
+        <input id="name" maxlength="32" autocomplete="nickname" placeholder="Captain…">
+        <button class="primary" id="create">CREATE A TABLE <span aria-hidden="true">➜</span></button>
+        <button class="secondary" id="join">JOIN YOUR CREW</button>
+        <button class="text-button" id="learn">? &nbsp; How to play</button>
+      </div>
+      <p class="footnote">2–10 PIRATES <span>✦</span> PRIVATE TABLES</p>
+      <button class="preview-link" id="preview">Explore the table preview →</button>
+      <span class="preview-tag">ART & INTERACTION PREVIEW</span>
+    </section>
+    <section id="setup-screen" class="setup-screen" hidden aria-labelledby="setup-title">
+      <button class="icon" id="setup-back" aria-label="Back to opening">←</button>
+      <div class="setup-crest" aria-hidden="true">⚓</div>
+      <span class="eyebrow">CAPTAIN'S ORDERS</span>
+      <h2 id="setup-title">Your table.<br>Your voyage.</h2>
+      <p>Choose a deck, then select “Go to table” below.</p>
+      <fieldset class="mode-toggle"><legend>GAME MODE</legend><label><input type="radio" name="mode" value="base" checked><span>Base game<small>The classic voyage</small></span></label><label><input type="radio" name="mode" value="expansion"><span>Full expansion<small>More powers. Wilder seas.</small></span></label></fieldset>
+      <p id="mode-description">The classic 70-card deck with named pirate powers.</p>
+      <button class="primary" id="view-table">GO TO TABLE →</button>
+      <p class="disclaimer">Setup preview · private rooms are not connected yet.</p>
+    </section>
+    <section id="table-screen" class="table-screen" hidden aria-label="Table layout preview">
+      <div class="table-heading"><button class="icon" id="home" aria-label="Back to opening">←</button><div><span class="eyebrow">TABLE PREVIEW · NOT A LIVE MATCH</span><h2>Round 6 <small>/ 10</small></h2></div><button class="icon" id="preview-settings" aria-label="Preview settings" aria-expanded="false">⚙</button><button class="icon" id="scores" aria-label="Scores and round history">♛</button><button class="icon" id="guide" aria-label="How to play">?</button></div>
+      <div class="turn-banner"><strong>Your turn, Captain</strong><span>3 players after you · Sam leads with Black 12</span></div>
+      <div class="table-controls" id="preview-controls" hidden><div class="feedback-settings"><strong>Sound & turn alerts</strong><label><input type="checkbox" id="game-sounds"> Game sounds</label><label><input type="checkbox" id="turn-chime" checked> Turn chime</label><label><input type="checkbox" id="turn-vibration" checked> Phone vibration</label><p id="haptic-support"></p><button class="secondary" id="test-turn-alert">Test my turn alert</button><button class="text-button" id="preview-next-turn">Preview next turn →</button><button class="text-button" id="bot-preview">Bot decision preview →</button></div><button id="ability-gallery" class="secondary" type="button">Card ability screens →</button><div class="install-setting"><button id="install-app" class="secondary" type="button">Install app</button><p id="install-status" role="status" aria-live="polite"></p></div><label for="preview-phase">Screen <select id="preview-phase"><option value="play">Playing</option><option value="bid">Bidding</option></select></label><label for="preview-players">Preview seats <select id="preview-players"><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option selected>10</option></select></label><label for="preview-hand">Hand <select id="preview-hand"><option selected>5</option><option>8</option><option>10</option></select></label><label for="preview-lead">Lead <select id="preview-lead"><option value="black">Black</option><option value="yellow">Yellow</option></select></label></div>
+      <section id="bidding-view" class="bidding-view" hidden aria-label="Private bidding"></section>
+      <div id="table" class="table-grid"><div id="public-trick"></div></div>
+      <div class="hand-zone">
+        <div class="hand-label"><strong>Your hand</strong><span>Tap for powers · swipe up to play</span></div>
+        <div class="ability" id="ability" hidden role="status"></div>
+        <div id="hand" class="hand"></div>
+        <p class="table-note" id="table-note" aria-live="polite">Illustrative cards and scores. Multiplayer is not connected.</p>
+      </div>
+    </section>
+  </main>
+  <dialog id="modal"><button class="icon close" aria-label="Close dialog">×</button><div id="modal-content"></div></dialog>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
