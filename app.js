@@ -27,7 +27,7 @@ function open(html){content.innerHTML=html;const title=content.querySelector('h2
 $('modal').querySelector('.close').onclick=()=>modal.close();
 modal.addEventListener('close',()=>{if(room)render();});
 modal.addEventListener('click',e=>{if(e.target===modal){const r=modal.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)modal.close();}});
-function cancelFeedback(){document.querySelectorAll('.sea-cue').forEach(e=>e.remove());for(const a of effectAnimations)a.cancel();effectAnimations=[];activeEffects.clear();clearTimeout(effectTimer);}
+function cancelFeedback(){document.querySelectorAll('.sea-cue,.card-flight').forEach(e=>e.remove());for(const a of effectAnimations)a.cancel();effectAnimations=[];activeEffects.clear();clearTimeout(effectTimer);}
 function noticeHeight(){const height=$('recovery-bar').hidden?($('lifecycle-bar').hidden?0:$('lifecycle-bar').getBoundingClientRect().height):$('recovery-bar').getBoundingClientRect().height;document.documentElement.style.setProperty('--notice-height',height+'px');}
 window.addEventListener('resize',noticeHeight);
 function lifecycle(message,temporary=false){clearTimeout(lifecycleTimer);$('lifecycle-message').textContent=message;$('lifecycle-bar').hidden=!message;noticeHeight();if(temporary)lifecycleTimer=setTimeout(()=>{if(document.activeElement!==$('dismiss-lifecycle'))lifecycle('');},4500);}
@@ -53,13 +53,21 @@ function receiveFeedback(next,{baseline=false}={}){
     if(event.kind==='reveal')lifecycle('All bids are revealed. Match your bid exactly.',true);
   if(event.kind==='finished')celebrate=true;
   const key=event.id||`${event.kind}:${event.cardId||event.actorId||''}`;
-  activeEffects.set(key,{...event,start:performance.now(),duration:event.kind==='deal'?480:360});
+  let origin=null;
+  if(event.kind==='play'){
+   const play=next.match?.plays.find(p=>p.card.id===event.cardId);
+   const hand=Array.from(document.querySelectorAll('#hand [data-card-id]')).find(el=>el.dataset.cardId===event.cardId);
+   const seat=Array.from(document.querySelectorAll('.seat')).find(el=>el.dataset.player===play?.playerId);
+   const source=hand||seat?.querySelector('.avatar');
+   if(source){const r=source.getBoundingClientRect();if(r.width&&r.height)origin={x:r.x,y:r.y,width:r.width,height:r.height,local:!!hand};}
+  }
+  activeEffects.set(key,{...event,origin,start:performance.now(),duration:event.kind==='deal'?480:event.kind==='play'?440:360});
  }
  if(next.match?.phase!=='finished'){celebrate=false;audio.stopVictory();}
  while(activeEffects.size>24)activeEffects.delete(activeEffects.keys().next().value);
 }
 function paintFeedback(){
- document.querySelectorAll('.sea-cue').forEach(e=>e.remove());
+ document.querySelectorAll('.sea-cue,.card-flight').forEach(e=>e.remove());
  for(const a of effectAnimations)a.cancel();effectAnimations=[];
  const now=performance.now(),m=room?.match;
  $('table-screen').dataset.celebrate=String(celebrate);
@@ -88,7 +96,24 @@ function paintFeedback(){
   else if(e.kind==='outcome')targets=Array.from(document.querySelectorAll('[data-public]')).filter(el=>e.cardIds?.includes(el.dataset.public));
   if(e.kind==='outcome'&&['kraken','whale','stingray','locker'].includes(e.effect)){const wave=document.createElement('div');wave.className=`sea-cue sea-${e.effect}`;wave.setAttribute('aria-hidden','true');$('table').append(wave);const animation=wave.animate([{opacity:0,transform:'translateX(-35%)'},{opacity:.5,offset:.4},{opacity:0,transform:'translateX(35%)'}],{duration:e.duration,easing:'ease-out'});animation.currentTime=elapsed;effectAnimations.push(animation);animation.onfinish=()=>wave.remove();}
   targets.forEach((el,i)=>{const duration=e.duration,delay=e.kind==='deal'?Math.min(i*25,200):0;
-   if(['play','deal','draw'].includes(e.kind)){for(const child of el.children){const arrival=child.animate([{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'translateY(0)'}],{duration:duration-delay,delay,easing:'ease-out'});arrival.currentTime=elapsed;effectAnimations.push(arrival);}}
+   if(e.kind==='play'&&e.origin){
+    const r=el.getBoundingClientRect(),o=e.origin;
+    if(r.width&&r.height){
+     // A viewport overlay avoids clipping inside the seat and hand containers.
+     const flight=el.cloneNode(true);flight.classList.add('card-flight');flight.removeAttribute('data-public');flight.removeAttribute('aria-label');flight.setAttribute('aria-hidden','true');flight.tabIndex=-1;flight.inert=true;
+     // Preserve responsive face styling when the clone leaves the table's CSS scope.
+     const originals=[el,...el.querySelectorAll('*')],copies=[flight,...flight.querySelectorAll('*')];
+     originals.forEach((node,index)=>{const style=getComputedStyle(node);for(const property of style)copies[index].style.setProperty(property,style.getPropertyValue(property));});
+     Object.assign(flight.style,{position:'fixed',left:r.x+'px',top:r.y+'px',width:r.width+'px',height:r.height+'px',margin:'0',zIndex:'1000',pointerEvents:'none',maxWidth:'none',transformOrigin:'center',animation:'none'});
+     document.body.append(flight);
+     const dx=o.x+o.width/2-r.x-r.width/2,dy=o.y+o.height/2-r.y-r.height/2;
+     const scale=o.local?o.width/r.width:.65;
+     const travel=flight.animate([{transform:`translate(${dx}px,${dy}px) rotate(${dx>0?8:-8}deg) scale(${scale})`,opacity:o.local?1:.25},{transform:`translate(${dx*.3}px,${dy*.3-18}px) rotate(0deg) scale(1.06)`,opacity:1,offset:.65},{transform:'translate(0,0) rotate(0deg) scale(1)',opacity:1}],{duration,easing:'cubic-bezier(.22,.7,.25,1)'});
+     const hidden=el.animate([{opacity:0},{opacity:0}],{duration});
+     travel.currentTime=hidden.currentTime=elapsed;effectAnimations.push(travel,hidden);travel.onfinish=()=>flight.remove();
+    }
+   }
+   if(['deal','draw'].includes(e.kind)){for(const child of el.children){const arrival=child.animate([{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'translateY(0)'}],{duration:duration-delay,delay,easing:'ease-out'});arrival.currentTime=elapsed;effectAnimations.push(arrival);}}
    const animation=el.animate([{boxShadow:'0 0 0 3px #a2f5df, 0 0 16px #a2f5df',filter:'brightness(1.25)'},{boxShadow:'0 0 0 0 transparent',filter:'brightness(1)'}],{duration:duration-delay,delay,easing:'ease-out'});animation.currentTime=elapsed;effectAnimations.push(animation);
   });
  }
