@@ -13,7 +13,7 @@ const feedbackTracker=new FeedbackTracker(),activeEffects=new Map();
 let effectAnimations=[],effectTimer=null,celebrate=false,connectionStarted=0,lifecycleTimer=null;
 let session;try{session=JSON.parse(read('skull-session'));}catch{}
 let inFlight=null,actionTimer=null,requestSequence=0,lastFocusPhase='',lastAnnouncement='',actionError='',connectionReady=false,pendingFocus=null,leaving=false;
-let room=null,socket=null,retryTimer=null,retry=0,pending=null,selected=null,lastEvent='',bidChoice=null,choiceSelection=[],installPrompt=null,installed=false,lastTurnKey='';
+let room=null,socket=null,retryTimer=null,retry=0,pending=null,selected=null,lastEvent='',bidChoice=null,choiceSelection=[],installPrompt=null,installed=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true,lastTurnKey='';
 const params=new URLSearchParams(location.hash.slice(1)),hint=params.get('arcadeName');
 $('name').value=read('skull-name')||(hint&&hint.length<=32?hint:'');
 if(params.has('arcadeName')){params.delete('arcadeName');history.replaceState(null,'',location.pathname+location.search+(params.size?'#'+params:''));}
@@ -275,11 +275,26 @@ function settings(){
  $('setting-sound').onchange=async()=>{try{const enabled=await audio.toggle();write('skull-sound',String(enabled));$('setting-sound').checked=enabled;}catch{$('setting-sound').checked=false;}};
  $('setting-chime').onchange=()=>{audio.alertsEnabled=$('setting-chime').checked;write('skull-turn-chime',String(audio.alertsEnabled));audio.syncVisibility().catch(()=>{});};
  $('setting-vibration').onchange=()=>write('skull-turn-vibration',String($('setting-vibration').checked));
- $('install-app').onclick=async()=>{if(!installPrompt){$('install-status').textContent=/iPhone|iPad/.test(navigator.userAgent)?'In Safari, open Share, then Add to Home Screen.':'Use Install app or Add to Home Screen in your browser menu, if available.';return;}const event=installPrompt;installPrompt=null;$('install-app').disabled=true;try{await event.prompt();}catch{$('install-status').textContent='Use the install option in your browser menu.';}finally{if($('install-app'))$('install-app').disabled=installed;}};
+ $('install-app').onclick=async()=>{
+  const button=$('install-app'),status=$('install-status');
+  if(!installPrompt){status.textContent=installHelp();return;}
+  const event=installPrompt;installPrompt=null;button.disabled=true;
+  status.textContent='Waiting for your browser’s install dialog…';
+  try{const result=await event.prompt();const choice=await(event.userChoice||Promise.resolve(result));status.textContent=installed?'App installed.':choice?.outcome==='accepted'?'Installation requested. Open Skull King from your home screen when ready.':'Installation cancelled. You can also install from your browser menu.';}
+  catch{status.textContent=installHelp();}
+  finally{if(button.isConnected)button.disabled=installed;}
+ };
  content.querySelectorAll('[data-replace]').forEach(b=>b.onclick=()=>{send({type:'bot-takeover',playerId:b.dataset.replace});modal.close();});content.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{send({type:'kick',playerId:b.dataset.remove});modal.close();});if($('leave-match'))$('leave-match').onclick=()=>{modal.close();leave();};
 }
 $('menu').onclick=settings;$('table-settings').onclick=settings;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;});window.addEventListener('appinstalled',()=>{installed=true;if($('install-app')){$('install-app').disabled=true;$('install-app').textContent='App installed';}});
+function installHelp(){
+ if(!window.isSecureContext)return 'To install, open Skull King using its HTTPS website in Chrome. Installation is unavailable on this connection.';
+ if(/iPhone|iPad/.test(navigator.userAgent))return 'In Safari, open Share, then Add to Home Screen.';
+ if(/Android/i.test(navigator.userAgent))return 'Open this page in Chrome, then tap ⋮ → Add to home screen → Install. If you opened it inside another app, choose Open in Chrome first. If already installed, open Skull King from your home screen.';
+ return 'Open your browser menu and choose Install app or Add to Home Screen, if available.';
+}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;if($('install-status'))$('install-status').textContent='Ready to install. Tap Install app.';});
+window.addEventListener('appinstalled',()=>{installed=true;installPrompt=null;if($('install-app')){$('install-app').disabled=true;$('install-app').textContent='App installed';}if($('install-status'))$('install-status').textContent='App installed. Open Skull King from your home screen.';});
 function updateCountdowns(){if(connectionStarted){const seconds=Math.floor((Date.now()-connectionStarted)/1000);$('recovery-elapsed').textContent=`${seconds}s elapsed`;}document.querySelectorAll('[data-until]').forEach(e=>{e.textContent=Math.max(0,Math.ceil((Number(e.dataset.until)-Date.now())/1000))+'s';});}
 setInterval(updateCountdowns,1000);
 if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
